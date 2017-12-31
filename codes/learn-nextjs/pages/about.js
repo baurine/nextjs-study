@@ -1,10 +1,9 @@
-import Header from '../components/Header'
+import Layout from '../components/MyLayout'
 
 const About = () => (
-  <div>
-    <Header />
+  <Layout>
     <p>About Next.js</p>
-  </div>
+  </Layout>
 )
 
 export default About
