@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "next"
+    "dev": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.2",
     "next": "^4.2.1",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
