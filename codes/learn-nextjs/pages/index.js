@@ -3,8 +3,8 @@ import Layout from '../components/MyLayout'
 
 const PostLink = (props) => (
   <li>
-    <Link href={`/post?title=${props.title}`}>
-      <a>{props.title}</a>
+    <Link as={`/p/${props.post.id}`} href={`/post?title=${props.post.title}`}>
+      <a>{props.post.title}</a>
     </Link>
   </li>
 )
@@ -14,10 +14,10 @@ const Index = () => (
     <h1>My Blog</h1>
     {
       [
-        'Hello Next.js',
-        'Learn Next.js is awesome',
-        'Deploy apps with Zeit'
-      ].map(title => <PostLink title={title} />)
+        { id: 'hello-nextjs', title: 'Hello Next.js'},
+        { id: 'learn-nextjs', title: 'Learn Next.js is awesome'},
+        { id: 'deploy-nextjs', title: 'Deploy apps with Zeit'}
+      ].map(post => <PostLink post={post} />)
     }
   </Layout>
 )
