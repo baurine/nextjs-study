@@ -7,6 +7,20 @@ const PostLink = (props) => (
     <Link as={`/p/${props.show.id}`} href={`/post?id=${props.show.id}`}>
       <a>{props.show.name}</a>
     </Link>
+    <style jsx>{`
+      li {
+        list-style: none;
+        margin: 5px 0;
+      }
+      a {
+        font-family: Arial;
+        text-decoration: none;
+        color: blue;
+      }
+      a:hover {
+        opacity: 0.6;
+      }
+    `}</style>
   </li>
 )
 
@@ -16,6 +30,14 @@ const Index = (props) => (
     <ul>
       { props.shows.map(({show}) => <PostLink show={show} key={show.id}/>) }
     </ul>
+    <style jsx>{`
+      h1 {
+        font-family: Arial;
+      }
+      ul {
+        padding: 0;
+      }
+    `}</style>
   </Layout>
 )
 
