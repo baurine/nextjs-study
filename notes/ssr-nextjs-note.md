@@ -54,6 +54,8 @@ Next.js 是一个 React 的服务端渲染框架。
 
 所谓中间渲染层，因为 React 的服务端渲染最好用 Node 来做，而如果你已经有一个用其它语言实现的后端，比如 Rails、Python，不方便用它们来做服务端渲染。那我们可以用 Next.js 作为中间渲染层，它从客户端接受请求，然后访问 Rails / Python 后端提供的 API，得到数据，渲染 html 返回给客户端。
 
+update (2019/07/15): 现在的理解，Next.js，用于前后端后离，它既是前端的全部，又承担一部分后端，同时它必须有一个配套的提供 API 的后端。当在浏览器首次访问某个页面时，Next.js 首先在服务端请求 API 后端，渲染出相应的页面的 html 代码，同时包含 bundle 的所有 js，然后这个 bundle 的 js 会在客户端接管所有页面的路由，当访问其它页面时，皆在客户端完成，客户端的 js 代码里访问的 API 请求也直接到达 API 后端，而不会再经过服务器的 Next.js 代码。这个设计很好。
+
 #### Learning Next.js
 
 Note for [Learning Next.js](https://learnnextjs.com/)
