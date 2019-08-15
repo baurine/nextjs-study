@@ -1,7 +1,5 @@
 # SSR & Next.js Note
 
-只作大致了解。
-
 ## References
 
 - [Learning Next.js](https://learnnextjs.com/)
@@ -36,9 +34,9 @@
 
 在浏览器访问服务器后，服务器将直接得到的数据 (比如从数据库)，渲染生成静态 html，但同时，需要将这些原始数据以类似 json 的形式，放到 html 的 javascript 标签中。
 
-    <script>
-      window.__INITIAL_STATE__ = ${JSON.stringify(initialState)};
-    </script>
+```js
+<script>window.__INITIAL_STATE__ = ${JSON.stringify(initialState)};</script>
+```
 
 浏览器在加载完 html 后，因为它已经是一个渲染好的静态 html，用户可以直接看到所有的内容，即使 js 文件还没有下载下来。
 
@@ -58,47 +56,57 @@ update (2019/07/15): 现在的理解，Next.js，用于前后端后离，它既�
 
 #### Learning Next.js
 
-Note for [Learning Next.js](https://learnnextjs.com/)
+Note for [Learning Next.js](https://nextjs.org/learn/basics/getting-started)
 
-没有很多特别的内容。
+(发现在 Next.js 中的 component 实现都不需要 `import React from 'react'`，神奇，在 CRA 中是需要的，应该是 Next.js 帮我们做了这件事情。)
 
 **1 - Getting Started**
 
 安装 react、react-dom、next：
 
-    $npm install --save react react-dom next
+```shell
+$ npm install --save react react-dom next
+```
 
 创建 pages 目录：
 
-    $mkdir pages
+```shell
+$ mkdir pages
+```
 
 把需要服务端渲染的页面 (或者说路由) 放在 pages 目录下，在 pages 目录下的 js 文件会自动生成相应的路由，比如 `pages/about.js` 会生成 `/about` 路由。
 
 修改 package.json，增加 `npm run dev` 命令，并让其执行 next：
 
-    {
-      "scripts": {
-        "dev": "next"
-      }
-    }
+```json
+{
+  "scripts": {
+    "dev": "next"
+  }
+}
+```
 
 创建首页 `pages/index.js`：
 
-    const Index = () => (
-      <div>
-        <p>Hello Next.js</p>
-      </div>
-    )
+```js
+const Index = () => (
+  <div>
+    <p>Hello Next.js</p>
+  </div>
+)
 
-    export default Index
+export default Index
+```
 
 **2 - Navigate between Pages**
 
 使用 Next 提供的 Link 组件
 
-    <Link href='/about'>
-      <a>About</a>
-    </Link>
+```js
+<Link href="/about">
+  <a>About</a>
+</Link>
+```
 
 **3 - Using Shared Components**
 
@@ -106,58 +114,118 @@ Note for [Learning Next.js](https://learnnextjs.com/)
 
 Header:
 
-    // components/Header.js
-    import Link from 'next/link'
+```js
+// components/Header.js
+import Link from 'next/link'
 
-    const linkStyle = {
-      marginRight: 15
-    }
+const linkStyle = {
+  marginRight: 15
+}
 
-    const Header = () => (
-        <div>
-            <Link href="/">
-              <a style={linkStyle}>Home</a>
-            </Link>
-            <Link href="/about">
-              <a style={linkStyle}>About</a>
-            </Link>
-        </div>
-    )
+const Header = () => (
+  <div>
+    <Link href="/">
+      <a style={linkStyle}>Home</a>
+    </Link>
+    <Link href="/about">
+      <a style={linkStyle}>About</a>
+    </Link>
+  </div>
+)
 
-    export default Header
+export default Header
+```
 
 Layout:
 
-    // components/MyLayout.js
-    import Header from './Header'
+```js
+// components/MyLayout.js
+import Header from './Header'
 
-    const layoutStyle = {
-      margin: 20,
-      padding: 20,
-      border: '1px solid #DDD'
-    }
+const layoutStyle = {
+  margin: 20,
+  padding: 20,
+  border: '1px solid #DDD'
+}
 
-    const Layout = (props) => (
-      <div style={layoutStyle}>
-        <Header />
-        {props.children}
-      </div>
-    )
+const Layout = props => (
+  <div style={layoutStyle}>
+    <Header />
+    {props.children}
+  </div>
+)
 
-    export default Layout
+export default Layout
+```
 
 这两个例子中还包含了 CSS-in-JS 的一种模式，linkStyle 和 layoutStyle，后面还会介绍另一种 CSS-in-JS 的用法，styled-jsx。
 
 上面 Header / Layout 的导出还可以进一步简化，匿名导出，以 Layout 为例：
 
-    export default (props) => (
-      <div style={layoutStyle}>
-        <Header />
-        {props.children}
-      </div>
-    )
+```js
+export default props => (
+  <div style={layoutStyle}>
+    <Header />
+    {props.children}
+  </div>
+)
+```
 
 可见 JS 是多么灵活...
+
+2019/8/15 update: 新的 tutorial 增加了两种实现，使用了不同的 react pattern。
+
+一种是将 Layout 定义成 HOC。
+
+```js
+// components/MyLayout.js
+import Header from './Header'
+...
+const withLayout = Page => {
+  return () => (
+    <div style={layoutStyle}>
+      <Header />
+      <Page />
+    </div>
+  )
+}
+export default withLayout
+```
+
+使用：
+
+```js
+// pages/index.js
+import withLayout from '../components/MyLayout'
+const Page = () => <p>Hello Next.js</p>
+export default withLayout(Page)
+```
+
+另一种是将 Page content 作为 Layout 的 prop。
+
+```js
+// components/MyLayout.js
+import Header from './Header'
+...
+const Layout = props => (
+  <div style={layoutStyle}>
+    <Header />
+    {props.content}
+  </div>
+)
+export default Layout
+```
+
+使用：
+
+```js
+// pages/index.js
+import Layout from '../components/MyLayout.js'
+const indexPageContent = <p>Hello Next.js</p>
+export default function Index() {
+  return <Layout content={indexPageContent} />
+}
+```
 
 **4 - Create Dynamic Pages**
 
@@ -165,55 +233,114 @@ Layout:
 
 创建 `pages/post.js` 页面：
 
-    import Layout from '../components/MyLayout.js'
+```js
+import Layout from '../components/MyLayout.js'
 
-    export default (props) => (
-        <Layout>
-          <h1>{props.url.query.title}</h1>
-          <p>This is the blog post content.</p>
-        </Layout>
-    )
+export default props => (
+  <Layout>
+    <h1>{props.url.query.title}</h1>
+    <p>This is the blog post content.</p>
+  </Layout>
+)
+```
 
 Next 会给 pages 目录中的所有顶层 Component 的 props 增加 url 属性，注意，只有顶层 Component 的 props 有此额外属性，其它 Component 没有。如下例所示：
 
-    const Content = (props) => (
-      <div>
-        <h1>{props.url.query.title}</h1>
-        <p>This is the blog post content.</p>
-      </div>
-    )
+```js
+const Content = props => (
+  <div>
+    <h1>{props.url.query.title}</h1>
+    <p>This is the blog post content.</p>
+  </div>
+)
 
-    export default () => (
-      <Layout>
-        <Content />
-      </Layout>
-    )
+export default () => (
+  <Layout>
+    <Content />
+  </Layout>
+)
+```
 
 Content 的 props 并没有 url 属性，导致运行出错，解决办法之一：
 
-    export default (props) => (
-      <Layout>
-        <Content url={props.url}/>
-      </Layout>
-    )
+```js
+export default props => (
+  <Layout>
+    <Content url={props.url} />
+  </Layout>
+)
+```
+
+2019/8/15 update: 新的 tutorial 使用了 useRouter react hook 得到 query。
+
+```js
+// pages/post.js
+import { useRouter } from 'next/router'
+import Layout from '../components/MyLayout'
+
+const Page = () => {
+  const router = useRouter()
+  return (
+    <Layout>
+      <h1>{router.query.title}</h1>
+      <p>This is the blog post content.</p>
+    </Layout>
+  )
+}
+export default Page
+```
 
 **5 - Clean URLs with Route Masking**
 
 使用 Link 组件的 as 属性，为 href 提供别名路由。
 
-    const PostLink = (props) => (
-      <li>
-        <Link as={`/p/${props.id}`} href={`/post?title=${props.title}`}>
-          <a>{props.title}</a>
-        </Link>
-      </li>
-    )
+```js
+const PostLink = props => (
+  <li>
+    <Link as={`/p/${props.id}`} href={`/post?title=${props.title}`}>
+      <a>{props.title}</a>
+    </Link>
+  </li>
+)
+```
 
 当点击上面这样一个链接时，浏览器显示的链接是类似 `/p/100` 的路径，但内部访问的还是 `/post?title=xxx` 的链接，因此它会自动切换到 `pages/page.js`。
 
 但是，使用别名有个问题，`/p/100` 这种 url，实际是虚拟的路径，只在客户端工作，服务端并没有实际对应的逻辑，当你直接从浏览器访问这个链接，而不是从某个链接跳转时，会显示 404。这个问题在下一小节会解决。
 
+2019/8/15 update: 新的 tutorial 使用了 Next.js 9.0 中的新特性 - Dynamic Routing，可以创建类似 `pages/p/[id].js` 这样的文件，这样就是不需要第 6 小节的内容，也就是不需要自己再写 server.js 了 (这曾经是 umi 在此之前拥有的特性)。
+
+用法，创建 `pages/p/[id].js` 文件。
+
+```js
+import { useRouter } from 'next/router'
+import Layout from '../../components/MyLayout'
+
+export default function Post() {
+  const router = useRouter()
+
+  return (
+    <Layout>
+      <h1>{router.query.id}</h1>
+      <p>This is the blog post content.</p>
+    </Layout>
+  )
+}
+```
+
+使用：
+
+```js
+<Link href="/p/[id]" as="/p/hello-nextjs">
+  <a>hello nextjs</a>
+</Link>
+```
+
+(总感觉 href 和 as 的意义应该反过来才更合理...)
+
 **6 - Server Side Support for Clean URLs**
+
+(此小节在 Next.js 9 中已经不需要了。)
 
 如上一小节所说，Next 为 pages 下的 component 自动生成了相应的路由，但如果你为它们用了别名，直接访问别名链接时，显示 404。
 
@@ -221,39 +348,19 @@ Content 的 props 并没有 url 属性，导致运行出错，解决办法之一
 
 创建 server.js，使用 express 或 koa，扩展路由。
 
-    // server.js
-    const express = require('express')
-    const next = require('next')
+```js
+// server.js
+const express = require('express')
+const next = require('next')
 
-    const dev = process.env.NODE_ENV !== 'production'
-    const app = next({ dev })
-    const handle = app.getRequestHandler()
+const dev = process.env.NODE_ENV !== 'production'
+const app = next({ dev })
+const handle = app.getRequestHandler()
 
-    app.prepare()
-    .then(() => {
-      const server = express()
-
-      server.get('/p/:id', (req, res) => {
-        const actualPage = '/post'
-        const queryParams = { title: req.params.id }
-        app.render(req, res, actualPage, queryParams)
-      })
-
-      server.get('*', (req, res) => {
-        return handle(req, res)
-      })
-
-      server.listen(3000, (err) => {
-        if (err) throw err
-        console.log('> Ready on http://localhost:3000')
-      })
-    })
-    .catch((ex) => {
-      console.error(ex.stack)
-      process.exit(1)
-    })
-
-核心代码：
+app
+  .prepare()
+  .then(() => {
+    const server = express()
 
     server.get('/p/:id', (req, res) => {
       const actualPage = '/post'
@@ -261,13 +368,40 @@ Content 的 props 并没有 url 属性，导致运行出错，解决办法之一
       app.render(req, res, actualPage, queryParams)
     })
 
+    server.get('*', (req, res) => {
+      return handle(req, res)
+    })
+
+    server.listen(3000, err => {
+      if (err) throw err
+      console.log('> Ready on http://localhost:3000')
+    })
+  })
+  .catch(ex => {
+    console.error(ex.stack)
+    process.exit(1)
+  })
+```
+
+核心代码：
+
+```js
+server.get('/p/:id', (req, res) => {
+  const actualPage = '/post'
+  const queryParams = { title: req.params.id }
+  app.render(req, res, actualPage, queryParams)
+})
+```
+
 同时修改 package.json 的 `npm run dev` 命令，因为扩展了 server 逻辑，所以我们不应该再直接用 next 提供的默认服务端逻辑，而是使用新的 server 逻辑：
 
-    {
-      "scripts": {
-        "dev": "node server.js"
-      }
-    }
+```json
+{
+  "scripts": {
+    "dev": "node server.js"
+  }
+}
+```
 
 **7 - Fetching Data for Pages**
 
@@ -275,94 +409,102 @@ Content 的 props 并没有 url 属性，导致运行出错，解决办法之一
 
 Next 为 Component 定义了一静态方法 getInitialProps()，这个方法会在 render() 之前执行一次，可以在这个方法中使用 fetch 从 API 拿到数据，然后在 render() 中渲染。isomorphic-unfetch 提供了同构的 fetch 方法。
 
-    import Layout from '../components/MyLayout.js'
-    import Link from 'next/link'
-    import fetch from 'isomorphic-unfetch'
+```js
+import Layout from '../components/MyLayout.js'
+import Link from 'next/link'
+import fetch from 'isomorphic-unfetch'
 
-    const Index = (props) => (
-      <Layout>
-        <h1>Batman TV Shows</h1>
-        <ul>
-          {props.shows.map(({show}) => (
-            <li key={show.id}>
-              <Link as={`/p/${show.id}`} href={`/post?id=${show.id}`}>
-                <a>{show.name}</a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Layout>
-    )
+const Index = props => (
+  <Layout>
+    <h1>Batman TV Shows</h1>
+    <ul>
+      {props.shows.map(({ show }) => (
+        <li key={show.id}>
+          <Link as={`/p/${show.id}`} href={`/post?id=${show.id}`}>
+            <a>{show.name}</a>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </Layout>
+)
 
-    Index.getInitialProps = async function() {
-      const res = await fetch('https://api.tvmaze.com/search/shows?q=batman')
-      const data = await res.json()
+Index.getInitialProps = async function() {
+  const res = await fetch('https://api.tvmaze.com/search/shows?q=batman')
+  const data = await res.json()
 
-      console.log(`Show data fetched. Count: ${data.length}`)
+  console.log(`Show data fetched. Count: ${data.length}`)
 
-      return {
-        shows: data
-      }
-    }
+  return {
+    shows: data
+  }
+}
 
-    export default Index
+export default Index
+```
+
+首次访问时，getInitialProps() 在服务端执行，之后在浏览器端执行。
 
 **8 - Styling Components**
 
 除了上面第 3 小节讲到的在 JS 中使用 CSS 的方法，Next 还推荐使用 styled-jsx 在 JS 中使用 CSS。
 
-    const PostLink = ({ post }) => (
-      <li>
-        <Link as={`/p/${post.id}`} href={`/post?title=${post.title}`}>
-          <a>{post.title}</a>
-        </Link>
-        <style jsx>{`
-          li {
-            list-style: none;
-            margin: 5px 0;
-          }
+```js
+const PostLink = ({ post }) => (
+  <li>
+    <Link as={`/p/${post.id}`} href={`/post?title=${post.title}`}>
+      <a>{post.title}</a>
+    </Link>
+    <style jsx>{`
+      li {
+        list-style: none;
+        margin: 5px 0;
+      }
 
-          a {
-            text-decoration: none;
-            color: blue;
-            font-family: "Arial";
-          }
+      a {
+        text-decoration: none;
+        color: blue;
+        font-family: 'Arial';
+      }
 
-          a:hover {
-            opacity: 0.6;
-          }
-        `}</style>
-      </li>
-    )
+      a:hover {
+        opacity: 0.6;
+      }
+    `}</style>
+  </li>
+)
+```
 
-使用 `<style jsx>{``}</style>`，因为我们可以在 styled-jsx 使用变量，所以要用反引号包围起来。
+使用 ` <style jsx>{``}</style> `，因为我们可以在 styled-jsx 使用变量，所以要用反引号包围起来。
 
 `<style jsx>` 内的 CSS 只会在当前 Component 生效，不会在 Component 的 children 生效，因此不会影响全局。
 
 如果想让它在全局作用，则可以加上 global 选项，即 `<style jsx global>`，这里举了一个 Markdown Component 的例子。
 
-    <div className="markdown">
-      <Markdown source={`
-    This is our blog post.
-    Yes. We can have a [link](/link).
-    And we can have a title as well.
+```js
+<div className="markdown">
+  <Markdown source={`
+This is our blog post.
+Yes. We can have a [link](/link).
+And we can have a title as well.
 
-    ### This is a title
+### This is a title
 
-    And here's the content.
-      `}/>
-    </div>
-    <style jsx global>{`
-      .markdown {
-        font-family: 'Arial';
-      }
+And here's the content.
+  `}/>
+</div>
+<style jsx global>{`
+  .markdown {
+    font-family: 'Arial';
+  }
 
-      .markdown a {
-        text-decoration: none;
-        color: blue;
-      }
-      ...
-    `}</style>
+  .markdown a {
+    text-decoration: none;
+    color: blue;
+  }
+  ...
+`}</style>
+```
 
 **9 - Deploying a Next.js App**
 
@@ -377,3 +519,105 @@ Next 为 Component 定义了一静态方法 getInitialProps()，这个方法会�
 3. Lazy Loading Components
 
 略。需要时再看。
+
+2019/08/15，继续看高级内容。
+
+**10 - Export into a Static HTML App**
+
+生成静态的 html 文件。
+
+有了 Gatsby 的知识后这一部分就很好理解了，写一个 next.config.js 配置文件，在配置文件里描述要生成的静态文件路由。
+
+```js
+// next.config.js
+const fetch = require('isomorphic-unfetch')
+
+module.exports = {
+  exportPathMap: async function() {
+    const paths = {
+      '/': { page: '/' },
+      '/about': { page: '/about' }
+    }
+    const res = await fetch('https://api.tvmaze.com/search/shows?q=batman')
+    const data = await res.json()
+    const shows = data.map(entry => entry.show)
+
+    shows.forEach(show => {
+      paths[`/show/${show.id}`] = { page: '/show/[id]', query: { id: show.id } }
+    })
+
+    return paths
+  }
+}
+```
+
+在 package.json 中新增 export 命令：
+
+```json
+{
+  "scripts": {
+    "build": "next build",
+    "export": "next export"
+  }
+}
+```
+
+执行 build 和 export 命令，生成静态文件，生成的文件默认在 out 目录中。
+
+```shell
+$ npm run build // 只需要首次执行，之后只需要单独执行 npm run export 即可
+$ npm run export
+```
+
+安装 serve npm package，用来在本地起一个静态 web 服务器，预览效果。
+
+```shell
+$ npm i -g serve
+$ cd out
+$ serve -p 8080
+```
+
+**11 - TypeScript**
+
+Next.js 内置对 TS 的支持，只要将 component 以 .tsx 后缀命名即可。不过 typescript 依赖还是需要显示手动安装的。
+
+```shell
+$ npm install --save react react-dom next
+$ npm install --save-dev typescript @types/react @types/react-dom @types/node
+```
+
+**12 - Lazy Loading Modules**
+
+`npm run analyze:browser` 命令会启动 webpack bundle analyzer 分析各 bundle file 的情况。
+
+dynamic import:
+
+```js
+// const firebase = require('firebase/app')
+// require('firebase/database')
+const firebase = await import('firebase/app')
+await import('firebase/database')
+```
+
+**13 - Lazy Loading Components**
+
+```js
+//import Highlight from 'react-highlight'
+import dynamic from 'next/dynamic'
+
+const Highlight = dynamic(() => import('react-highlight'))
+```
+
+让 Highlight 组件动态加载。
+
+**14 - Create AMP Pages**
+
+略。
+
+**15 - Automatic Prerendering**
+
+略。
+
+通过同一个 `next build` 命令，自动判断相应的路由是要生成静态页面还是动态页面。
+
+疑问：next.js 如何和 redux 配合使用？可能要看文档了。
