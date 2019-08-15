@@ -4,10 +4,10 @@ Learn SSR and Next.js
 
 ## Notes
 
-- [SSR & Next.js Note](notes/ssr-nextjs-note.md)
+- [SSR & Next.js Note](./notes/ssr-nextjs-note.md)
 
 ## Demos
 
-![](art/nextjs-demo-1.png)
+![](./notes/nextjs-demo-1.png)
 
-![](art/nextjs-demo-2.png)
+![](./notes/nextjs-demo-2.png)
